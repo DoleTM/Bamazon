@@ -55,7 +55,7 @@ function initiate() {
                         name: "add_more",
                         message: "How much would you like to add to inventory?"
                     }
-                ]).then(function (err, res){
+                ]).then(function (err, res) {
                     if (err) throw err;
                     addNew(res);
                 });
@@ -70,10 +70,10 @@ function initiate() {
 };
 
 function viewProducts() {
-    connection.query("SELECT * FROM products", function (err, res){
+    connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
         console.log("=========================================");
-        console.log("ID #" + " | " + "Product Name" + " | "  + "Style" + " | " + "Price" + " | " + "Stock Qty");
+        console.log("ID #" + " | " + "Product Name" + " | " + "Style" + " | " + "Price" + " | " + "Stock Qty");
         for (let i = 0; i < res.length; i++) {
             console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
         };
@@ -97,38 +97,128 @@ function addToInv() {
 
     inquirer.prompt([
         {
-            type: "rawlist",
+            type: "input",
             name: "add_more",
-            message: "Which ID # do you want to add stock to?",
-            choices: ["Bells Hopslam","North Coast Old Rasputin"]
+            message: "Which ID # do you want to add stock to?"
+        },
+        {
+            type: "input",
+            name: "quantity",
+            message: "How much would you like to add to inventory?"
         }
-    ])
+    ]).then(function (id, quantity, res) {
+        console.log("Updating inventory quantity...\n");
+        var itemSelect = res[id - 1];
+        var add = (itemSelect.stock_quantity + quantity);
+        var query = "UPDATE bamazon_db.products SET ? WHERE ?";
+        connection.query(query,
+            [
+                {
+                    stock_quantity: add
+                },
+                {
+                    item_id: itemSelect.item_id
+                }
+            ],
+            function (err) {
+                if (err) throw err;
+                console.log("=========================================");
+                console.log("ID # " + itemSelect.item_id + " quantity updated to: " + add + "\n");
 
-    connection.query(
-        "INSERT INTO products SET ? WHERE ?",
+                console.log("=========================================");
+
+                connection.query("SELECT * FROM products", function (err, res) {
+                    if (err) throw err;
+                    console.log("ID #" + " | " + "Product Name" + " | " + "Style" + " | " + "Price" + " | " + "Stock Qty");
+                    for (let i = 0; i < res.length; i++) {
+                        console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
+                    };
+                    inquirer.prompt([
+                        {
+                            type: "confirm",
+                            name: "another",
+                            message: "Would you like to add a quantity to another item?"
+                        }
+                    ]).then(function (response) {
+                        switch (response.another) {
+                            case true:
+                                addNew(id, quantity, res);
+                                break;
+                            case false:
+                                initiate();
+                                break;
+                            default:
+                                console.log("Session as ID: " + connection.threadId + " has ended.")
+                                connection.end();
+                                break;
+                        }
+                    })
+                });
+            }
+        );
+    })
+};
+
+function addNew(id, quantity, res) {
+    console.log("Updating inventory quantity...\n");
+    var itemSelect = res[id - 1];
+    var add = (itemSelect.stock_quantity + quantity);
+    var query = "UPDATE bamazon_db.products SET ? WHERE ?";
+    connection.query(query,
         [
             {
-
+                stock_quantity: add
+            },
+            {
+                item_id: itemSelect.item_id
             }
-        ], function (err){
+        ],
+        function (err) {
             if (err) throw err;
-    });
+            console.log("=========================================");
+            console.log("ID # " + itemSelect.item_id + " quantity updated to: " + add + "\n");
+
+            console.log("=========================================");
+
+            connection.query("SELECT * FROM products", function (err, res) {
+                if (err) throw err;
+                console.log("ID #" + " | " + "Product Name" + " | " + "Style" + " | " + "Price" + " | " + "Stock Qty");
+                for (let i = 0; i < res.length; i++) {
+                    console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
+                };
+                inquirer.prompt([
+                    {
+                        type: "confirm",
+                        name: "another",
+                        message: "Would you like to add a quantity to another item?"
+                    }
+                ]).then(function (response) {
+                    switch (response.another) {
+                        case true:
+                            addNew(id, quantity, res);
+                            break;
+                        case false:
+                            initiate();
+                            break;
+                        default:
+                            console.log("Session as ID: " + connection.threadId + " has ended.")
+                            connection.end();
+                            break;
+                    }
+                })
+            });
+        }
+    );
 };
 
-function addNew() {
-    connection.query({
-
-    });
-};
-
-// inquirer.prompt([{}]).then(function (res){
-//     connection.query(
-//         "INSERT INTO",
-//         {
-//             item_name: res.item
-//         },
-//         function (err) {
-//             if (err) throw err;
-//         }
-//     )
-// })
+inquirer.prompt([{}]).then(function (res) {
+    connection.query(
+        "INSERT INTO",
+        {
+            item_name: res.item
+        },
+        function (err) {
+            if (err) throw err;
+        }
+    )
+});
