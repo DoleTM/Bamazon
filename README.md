@@ -15,12 +15,10 @@ If it does then the item quantity is updated in the inventory and the customer's
 
 If the stock quantity of the selected item is less than what the customer requests, then they are prompted with an "Insuffecient Quantity" and brought back to purchase a different selection/quantity.
 
-![GIF of Program]()
-![GIF of Program]()
-![GIF of Program]()
-![GIF of Program]()
+![GIF Demo 1](/bamazonDemo1.gif)
+![GIF Demo 2](/bamazonDemo2.gif)
 
-###Manager View
+<!-- ###Manager View
 The manager will be prompted with the following choices.
 - Products for Sale
 - View Low Inventory
@@ -45,4 +43,9 @@ If a manager selects Add New Product, it should allow the manager to add a compl
 
 
 ![GIF of Program]()
-![GIF of Program]()
+![GIF of Program]() -->
+
+###Future Revisions
+1. I would like to add to this database with live prices
+2. Be able to search the taplist by Brewery
+3. Able to see the nearest place the beer requested is available
